@@ -1,30 +1,90 @@
-# GitHub pages project
+## Installation
 
-Contexte:
+On a besoin pour ce projet d'avoir npm et node
 
-Vous êtes un lead dev qui met en place un repository pour son équipe, toutes les bonnes pratiques doivent être mise en place pour garantir une bonne gestion de projet.
+Après on installe laravel avec
+```bash
+ composer global require laravel/installer
+```
+Installer les dépendences dans le projet avec
+```bash
+ composer install
+```
+Lancer notre serveur local
+```bash
+ php artisan serve --port=9000
+```
 
-Ce qu'il faut faire:
-- [ ] Forker le projet disponible à [cette adresse](https://github.com/quentinhermiteau/github-pages-project)
-- [ ] Mettre en place toutes les bonnes pratiques autour du git flow
-- [ ] Rédiger un Readme (nom du projet, commande pour setup le projet, etc)
-- [ ] Mettre en place des templates pour les issues et les pull requests
-- [ ] Mettre en place une gestion de projet (+ labels)
-- [ ] Mettre en place une github pages avec un thème
-- [ ] Le projet devra contenir au moins 1 branche feature et 1 branche fix
-- [ ] Les commits doivent être correctement rédigés (ET SIGNÉS)
-- [ ] Tout travail doit être répertorié dans les issues et suivi avec la gestion de projet de GitHub
 
-Règles pour le projet:
-- Projet en individuel
-- Noté sur 7
+## Fonctionnement
+Dans notre porjet, on a créé une classe ContactController avec
+```bash
+ php artisan make:controller ContactController
+```
+Et une classe ContactMail
+```bash
+ php artisan make:mail ContactMail
+```
+vu qu'on a ajouté les captcha key dans .env, on fait la commande
+```bash
+ require google/recaptcha '~1.1'
+```
+Qui ajoute de nouveaux packages au composeur.json
 
-Notation:
-| à faire | point |
-| --- | --- |
-| Gitflow | 1 |
-| Readme | 1,5 |
-| templates | 1,5 |
-| Gestion de projet | 1 |
-| commits + signés | 1 |
-| Github pages | 1 |
+Dans la classe Contact on vérifie le formulaire dans la fonction sendMail
+```bash
+     $details = $request->validate([
+            'name' => 'required|max:50',
+            'email' => 'required|email|max:50',
+            'phone' => 'required|digits:10',
+            'msg' => 'required|max:255',
+            'g-recaptcha-response' => new Captcha(),
+        ]);
+```
+on envoie le mail
+
+```bash
+Mail::to('testlucasramis@gmail.com')->send(new ContactMail($details));
+```
+et on renvoie l'infomation que le formulaire a bien été envoyé pour l'afficher après
+```bash
+return back()->with('message_sent', 'Your message has been sent successfully !');
+```
+Les routes créées
+```bash
+Route::get('/contact-us',[ContactController::class,'contact']);
+Route::post('/send-message',[ContactController::class,'sendEmail'])->name('contact.send');
+```
+
+Dans la fonction passes de l'objet Captcha on instancie un nouvel objet Recaptcha :
+
+```bash
+    public function passes($attribute, $value)
+    {
+        $recaptcha = new ReCaptcha(env('CAPTCHA_SECRET'));
+        $response = $recaptcha->verify($value, $_SERVER['REMOTE_ADDR']);
+        return $response->isSuccess();
+
+    }
+```
+Et on renvoie un message si le captcha n'est pas coché
+```bash
+    public function message()
+    {
+        return 'Please complete the recaptcha to submit the form.';
+    }
+```
+
+## Version
+Recaptcha<br>v1.2.4
+
+laravel/framework<br>v8.40.0
+Pour voir toutes les versions dans le package composer dans le terminal
+```bash
+composer show
+```
+Le mail utilisé pour tester est :
+```bash
+mail : testlucasramis@gmail.com
+mdp : 1234$Test
+```
