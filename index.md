@@ -1,37 +1,49 @@
-## Welcome to GitHub Pages
+## Installation
 
-You can use the [editor on GitHub](https://github.com/RamisL/github-pages-project/edit/gh-pages/index.md) to maintain and preview the content for your website in Markdown files.
+On a besoin pour ce projet d'avoir npm et node
 
-Whenever you commit to this repository, GitHub Pages will run [Jekyll](https://jekyllrb.com/) to rebuild the pages in your site, from the content in your Markdown files.
-
-### Markdown
-
-Markdown is a lightweight and easy-to-use syntax for styling your writing. It includes conventions for
-
+Après on installe laravel avec
 ```markdown
-Syntax highlighted code block
-
-# Header 1
-## Header 2
-### Header 3
-
-- Bulleted
-- List
-
-1. Numbered
-2. List
-
-**Bold** and _Italic_ and `Code` text
-
-[Link](url) and ![Image](src)
+composer global require laravel/installer
 ```
 
-For more details see [Basic writing and formatting syntax](https://docs.github.com/en/github/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax).
+Installer les dépendences dans le projet avec
+```markdown
+ composer install
+```
 
-### Jekyll Themes
+Lancer notre serveur local
+```markdown
+ php artisan serve
+```
 
-Your Pages site will use the layout and styles from the Jekyll theme you have selected in your [repository settings](https://github.com/RamisL/github-pages-project/settings/pages). The name of this theme is saved in the Jekyll `_config.yml` configuration file.
+## Fonctionnement
 
-### Support or Contact
+Dans notre porjet, on a créé une classe ContactController avec
+```markdown
+ php artisan make:controller ContactController
+```
 
-Having trouble with Pages? Check out our [documentation](https://docs.github.com/categories/github-pages-basics/) or [contact support](https://support.github.com/contact) and we’ll help you sort it out.
+Et une classe ContactMail
+```markdown
+ php artisan make:mail ContactMail
+```
+
+vu qu'on a ajouté les captcha key dans .env, on fait la commande
+```markdown
+ require google/recaptcha '~1.1'
+```
+
+Qui ajoute de nouveaux packages au composeur.json
+
+Dans la classe Contact on vérifie le formulaire dans la fonction sendMail
+
+```markdown
+ $details = $request->validate([
+            'name' => 'required|max:50',
+            'email' => 'required|email|max:50',
+            'phone' => 'required|digits:10',
+            'msg' => 'required|max:255',
+            'g-recaptcha-response' => new Captcha(),
+        ]);
+```
